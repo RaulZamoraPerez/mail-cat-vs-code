@@ -1,0 +1,16 @@
+{
+  "name": "test-backend",
+  "version": "1.0.0",
+  "description": "Test backend para RZP Mail Sandbox",
+  "main": "test.js",
+  "scripts": {
+    "test": "node test.js",
+    "send": "node send-email.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "nodemailer": "^6.9.7"
+  }
+}
