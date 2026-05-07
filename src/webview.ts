@@ -196,28 +196,34 @@ export class InboxWebviewProvider {
           }
 
           body {
-            font-family: 'Fira Code', 'Jetbrains Mono', 'Monaco', monospace;
-            background-color: #0a0e14;
-            color: #e8e8e8;
+            /* Usar fuentes del sistema para un look nativo y elegante */
+            font-family: var(--vscode-font-family), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--vscode-editor-background);
+            color: var(--vscode-editor-foreground);
             display: flex;
             flex-direction: column;
             height: 100vh;
-            letter-spacing: 0px;
+            font-size: 13px;
           }
 
+          /* Contenedor principal con sombra sutil de separación */
           .container {
             display: flex;
             height: 100%;
+            background-color: var(--vscode-editor-background);
           }
 
+          /* Sidebar rediseñado, más limpio */
           .sidebar {
-            width: 28%;
-            border-right: 1px solid #1a1f2e;
+            width: 280px;
+            min-width: 250px;
+            background-color: var(--vscode-sideBar-background);
+            border-right: 1px solid var(--vscode-sideBarSectionHeader-border, rgba(128, 128, 128, 0.1));
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            min-width: 250px;
-            background-color: #0a0e14;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            z-index: 5;
           }
 
           .main-content {
@@ -225,135 +231,154 @@ export class InboxWebviewProvider {
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            background-color: var(--vscode-editor-background);
           }
 
+          /* Cabecera superior elegante */
           .header {
-            padding: 12px;
-            border-bottom: 1px solid #1a1f2e;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.15));
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #0a0e14;
+            background-color: var(--vscode-editor-background);
+            z-index: 10;
           }
 
           .header h2 {
-            font-size: 14px;
-            font-weight: 400;
-            letter-spacing: 0.5px;
-            color: #e8e8e8;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--vscode-editor-foreground);
+            letter-spacing: 0.3px;
           }
 
+          /* Botones con estilo profesional y flat design */
           .btn {
-            background-color: transparent;
-            color: #e8e8e8;
-            border: 1px solid #1a1f2e;
-            padding: 6px 12px;
-            border-radius: 2px;
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: 1px solid transparent;
+            padding: 8px 16px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 11px;
-            transition: all 0.2s;
-            font-weight: 400;
-            letter-spacing: 0px;
-            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
           }
 
           .btn:hover {
-            background-color: #1a1f2e;
-            border-color: #e8e8e8;
+            background-color: var(--vscode-button-hoverBackground);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+
+          .btn:active {
+            transform: translateY(1px);
           }
 
           .btn-secondary {
             background-color: transparent;
-            border: 1px solid #1a1f2e;
-            color: #e8e8e8;
+            border: 1px solid var(--vscode-button-background);
+            color: var(--vscode-foreground);
           }
 
           .btn-secondary:hover {
-            background-color: #1a1f2e;
-            border-color: #e8e8e8;
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
           }
 
+          /* Stats integrados elegantemente en la lista */
           .stats {
-            padding: 8px 12px;
-            font-size: 10px;
-            color: #6b7280;
-            border-bottom: 1px solid #1a1f2e;
-            font-weight: 400;
-            letter-spacing: 0px;
+            padding: 14px 20px;
+            font-size: 11px;
+            color: var(--vscode-descriptionForeground);
+            border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border, rgba(128, 128, 128, 0.1));
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background-color: var(--vscode-sideBar-background);
           }
 
           .email-list {
             flex: 1;
             overflow-y: auto;
-            padding: 8px;
+            padding: 12px;
           }
 
+          /* Elementos de la lista de correo con diseño de tarjetas modernas */
           .email-item {
-            padding: 10px;
-            margin-bottom: 4px;
-            background-color: transparent;
-            border: 1px solid transparent;
-            border-bottom: 1px solid #1a1f2e;
-            border-radius: 0px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background-color: var(--vscode-editor-background);
+            border: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.1));
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
           }
 
           .email-item:hover {
-            background-color: #0f1318;
-            border-color: #2a3042;
+            background-color: var(--vscode-list-hoverBackground);
+            border-color: var(--vscode-focusBorder);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
           }
 
           .email-item.active {
-            background-color: #0f1318;
-            border-left: 2px solid #e8e8e8;
-            border-bottom-color: #1a1f2e;
+            background-color: var(--vscode-list-activeSelectionBackground);
+            color: var(--vscode-list-activeSelectionForeground);
+            border-color: var(--vscode-focusBorder);
+            border-left: 3px solid var(--vscode-focusBorder);
+          }
+
+          .email-item.active .email-from,
+          .email-item.active .email-subject,
+          .email-item.active .email-meta {
+            color: var(--vscode-list-activeSelectionForeground);
           }
 
           .email-from {
-            font-weight: 500;
-            font-size: 12px;
-            margin-bottom: 2px;
-            color: #e8e8e8;
-            letter-spacing: 0px;
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: var(--vscode-editor-foreground);
           }
 
           .email-subject {
-            font-size: 11px;
-            color: #b4b9c1;
-            margin-bottom: 3px;
+            font-size: 12px;
+            color: var(--vscode-descriptionForeground);
+            margin-bottom: 6px;
             font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
           .email-meta {
             display: flex;
             justify-content: space-between;
-            font-size: 9px;
-            color: #6b7280;
+            font-size: 10px;
+            color: var(--vscode-descriptionForeground);
+            opacity: 0.8;
           }
 
-          .empty-state {
+          /* Estados vacíos limpios */
+          .empty-state, .empty-state-main {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100%;
-            color: #6b7280;
+            color: var(--vscode-descriptionForeground);
             text-align: center;
-            padding: 20px;
+            padding: 24px;
+          }
+          
+          .empty-state-main h3 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--vscode-editor-foreground);
           }
 
-          .empty-state-main {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            color: #6b7280;
-            text-align: center;
-            padding: 20px;
-          }
-
+          /* Panel de Detalles del correo (lado derecho) */
           .email-detail {
             display: flex;
             flex-direction: column;
@@ -362,42 +387,39 @@ export class InboxWebviewProvider {
           }
 
           .detail-header {
-            padding: 10px 12px;
-            border-bottom: 1px solid #1a1f2e;
-            background-color: #0a0e14;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.1));
+            background-color: var(--vscode-editor-background);
             flex-shrink: 0;
           }
 
           .detail-subject {
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: #e8e8e8;
-            letter-spacing: 0px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--vscode-editor-foreground);
+            letter-spacing: 0.2px;
           }
 
           .detail-meta {
             display: grid;
-            gap: 2px;
-            font-size: 11px;
+            gap: 6px;
+            font-size: 12px;
           }
 
           .detail-meta-row {
             display: flex;
-            gap: 6px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            gap: 12px;
           }
 
           .detail-meta-label {
-            font-weight: 500;
-            min-width: 40px;
-            color: #b4b9c1;
-            flex-shrink: 0;
+            font-weight: 600;
+            min-width: 60px;
+            color: var(--vscode-descriptionForeground);
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            padding-top: 1px;
           }
 
           .detail-content {
@@ -405,35 +427,39 @@ export class InboxWebviewProvider {
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            background-color: var(--vscode-editor-background);
           }
 
+          /* Pestañas (Tabs) estilizadas */
           .tabs {
             display: flex;
-            border-bottom: 1px solid #1a1f2e;
-            padding: 0 0px;
-            background-color: #0a0e14;
+            border-bottom: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.1));
+            padding: 0 12px;
+            background-color: var(--vscode-editor-background);
             flex-shrink: 0;
-            gap: 0;
+            gap: 4px;
           }
 
           .tab {
-            padding: 8px 12px;
+            padding: 12px 16px;
             cursor: pointer;
-            border-bottom: 1px solid transparent;
-            font-size: 10px;
-            transition: all 0.15s;
-            color: #6b7280;
-            white-space: nowrap;
-            font-weight: 400;
+            border-bottom: 2px solid transparent;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: var(--vscode-descriptionForeground);
           }
 
           .tab:hover {
-            color: #e8e8e8;
+            color: var(--vscode-foreground);
+            background-color: var(--vscode-list-hoverBackground);
+            border-radius: 4px 4px 0 0;
           }
 
           .tab.active {
-            border-bottom-color: #e8e8e8;
-            color: #e8e8e8;
+            border-bottom-color: var(--vscode-focusBorder);
+            color: var(--vscode-foreground);
+            font-weight: 600;
           }
 
           .tab-content {
@@ -441,6 +467,7 @@ export class InboxWebviewProvider {
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            padding: 0;
           }
 
           .tab-content > div {
@@ -457,11 +484,12 @@ export class InboxWebviewProvider {
             min-height: 0;
           }
 
+          /* Barra de advertencia/compatibilidad elegante */
           .compatibility-badge {
-            padding: 8px 12px;
-            background-color: transparent;
-            border-bottom: 1px solid #1a1f2e;
-            font-size: 10px;
+            padding: 10px 24px;
+            background-color: var(--vscode-editorInfo-background, rgba(55, 148, 255, 0.1));
+            border-bottom: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.1));
+            font-size: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -469,23 +497,29 @@ export class InboxWebviewProvider {
           }
 
           .compat-score {
-            font-weight: 500;
-            color: #b4b9c1;
+            font-weight: 600;
+            color: var(--vscode-editorInfo-foreground, #3794ff);
           }
 
           .compat-score.warning {
-            color: #d4a574;
+            color: var(--vscode-editorWarning-foreground, #cca700);
+            background-color: var(--vscode-editorWarning-background, rgba(204, 167, 0, 0.1));
+            padding: 2px 8px;
+            border-radius: 12px;
           }
 
           .compat-score.danger {
-            color: #ef6b6b;
+            color: var(--vscode-editorError-foreground, #f14c4c);
+            background-color: var(--vscode-editorError-background, rgba(241, 76, 76, 0.1));
+            padding: 2px 8px;
+            border-radius: 12px;
           }
 
           .html-preview {
             width: 100%;
             height: 100%;
             border: none;
-            background-color: white;
+            background-color: #ffffff; /* El renderizado del email siempre debe ser blanco puro */
           }
 
           .preview-container {
@@ -494,24 +528,26 @@ export class InboxWebviewProvider {
             flex-direction: column;
             overflow: hidden;
             min-height: 0;
-            padding: 8px;
+            padding: 16px 24px;
+            background-color: var(--vscode-editorWidget-background, #f3f3f3); /* Un fondo gris tenue nativo para resaltar la hoja de papel (email) */
           }
 
           .preview-iframe {
             flex: 1;
-            border: 1px solid var(--vscode-border);
-            border-radius: 4px;
-            background: white;
+            border: 1px solid var(--vscode-panel-border, rgba(0,0,0,0.1));
+            border-radius: 6px;
+            background: #ffffff;
             min-height: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Estilo "Hoja de papel" */
           }
 
           .raw-content {
             flex: 1;
-            background-color: #0a0e14;
-            padding: 12px;
-            border-radius: 0px;
-            font-family: 'Fira Code', monospace;
-            font-size: 11px;
+            background-color: var(--vscode-editor-background);
+            padding: 24px;
+            font-family: 'Fira Code', 'JetBrains Mono', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.5;
             white-space: pre-wrap;
             word-break: break-all;
             overflow: auto;
@@ -519,64 +555,66 @@ export class InboxWebviewProvider {
             height: 100%;
             margin: 0;
             border: none;
-            color: #b4b9c1;
+            color: var(--vscode-editor-foreground);
           }
 
+          /* Panel inferior de Validación */
           .validation-panel {
-            padding: 12px;
-            background-color: #0a0e14;
-            border-bottom: 1px solid #1a1f2e;
+            padding: 20px 24px;
+            background-color: var(--vscode-sideBar-background);
+            border-top: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.1));
             flex-shrink: 0;
             overflow-y: auto;
-            max-height: 250px;
+            max-height: 300px;
           }
 
           .validation-panel h3 {
-            margin: 0 0 10px 0;
-            font-size: 11px;
-            font-weight: 500;
-            color: #e8e8e8;
+            margin: 0 0 16px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--vscode-editor-foreground);
+            letter-spacing: 0.2px;
           }
 
           .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 8px;
-            font-size: 11px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
           }
 
           .metric-card {
-            background-color: transparent;
-            padding: 8px;
-            border-radius: 0px;
-            border: 1px solid #1a1f2e;
+            background-color: var(--vscode-editor-background);
+            padding: 16px;
+            border-radius: 6px;
+            border: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.1));
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
           }
 
           .metric-header {
-            font-weight: 500;
-            font-size: 9px;
-            color: #6b7280;
-            margin-bottom: 4px;
+            font-weight: 600;
+            font-size: 10px;
+            color: var(--vscode-descriptionForeground);
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
           }
 
           .metric-score {
-            font-size: 16px;
-            font-weight: 500;
-            margin: 4px 0;
-            color: #e8e8e8;
+            font-size: 24px;
+            font-weight: 300;
+            margin: 8px 0;
+            color: var(--vscode-editor-foreground);
           }
 
           .metric-details {
-            font-size: 9px;
-            color: #6b7280;
-            line-height: 1.3;
+            font-size: 11px;
+            color: var(--vscode-descriptionForeground);
+            line-height: 1.4;
           }
 
           .client-scores {
-            font-size: 10px;
-            line-height: 1.4;
+            font-size: 11px;
+            line-height: 1.6;
           }
 
           .welcome-screen {
@@ -607,44 +645,52 @@ export class InboxWebviewProvider {
           }
 
           .credentials-display {
-            background-color: transparent;
-            border: 1px solid #1a1f2e;
-            border-left: 2px solid #e8e8e8;
-            padding: 10px 12px;
-            border-radius: 0px;
-            font-family: 'Fira Code', monospace;
-            font-size: 11px;
+            background-color: var(--vscode-editorWidget-background);
+            border: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.15));
+            border-left: 3px solid var(--vscode-focusBorder);
+            padding: 12px;
+            border-radius: 6px;
+            font-family: var(--vscode-editor-font-family), monospace;
+            font-size: 13px;
             line-height: 1.6;
-            margin-bottom: 10px;
-            color: #b4b9c1;
+            margin-bottom: 12px;
+            color: var(--vscode-editor-foreground);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
           }
 
           .code-example {
-            background-color: #0f1318;
-            border: 1px solid #1a1f2e;
-            padding: 10px 12px;
-            border-radius: 0px;
-            font-family: 'Fira Code', monospace;
-            font-size: 10px;
+            background-color: var(--vscode-editorWidget-background);
+            border: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.15));
+            padding: 14px;
+            border-radius: 6px;
+            font-family: var(--vscode-editor-font-family), monospace;
+            font-size: 12px;
             overflow-x: auto;
-            margin-bottom: 10px;
-            color: #b4b9c1;
+            margin-bottom: 12px;
+            color: var(--vscode-editor-foreground);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
           }
 
           .start-btn {
-            background-color: transparent;
-            color: #e8e8e8;
-            border: 1px solid #1a1f2e;
-            padding: 8px 16px;
-            border-radius: 0px;
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 11px;
-            font-weight: 400;
-            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background-color 0.2s ease, transform 0.1s;
             align-self: flex-start;
-            margin-top: 10px;
-            letter-spacing: 0px;
-            font-family: 'Fira Code', monospace;
+            margin-top: 12px;
+          }
+
+          .start-btn:hover {
+            background-color: var(--vscode-button-hoverBackground);
+          }
+
+          .start-btn:active {
+            transform: scale(0.98);
           }
 
           .device-mockup {
@@ -754,12 +800,10 @@ export class InboxWebviewProvider {
           .device-mockup.tablet iframe { border-radius: 8px; }
           .device-mockup.desktop iframe { border-radius: 0 0 8px 8px; }
 
-          .start-btn:hover {
-            background-color: #1a1f2e;
-            border-color: #e8e8e8;
-          }
-
           .start-btn.success {
+            background-color: var(--vscode-charts-green, #4CAF50);
+            color: #ffffff;
+          }
             background-color: transparent;
             border-color: #50c878;
             color: #50c878;
@@ -772,55 +816,61 @@ export class InboxWebviewProvider {
           .status-indicator {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 11px;
-            margin-bottom: 16px;
-            padding: 10px;
-            background-color: transparent;
-            border-radius: 0px;
-            border: 1px solid #1a1f2e;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            padding: 16px;
+            background-color: var(--vscode-editorWidget-background);
+            border-radius: 8px;
+            border: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.15));
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
           }
 
           .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            background-color: #6b7280;
+            background-color: var(--vscode-editorError-foreground, #f14c4c);
+            box-shadow: 0 0 8px rgba(241, 76, 76, 0.4);
           }
 
           .status-dot.active {
-            background-color: #50c878;
+            background-color: var(--vscode-charts-green, #4CAF50);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
           }
 
           .credentials-box {
-            background-color: transparent;
-            border: 1px solid #1a1f2e;
-            border-radius: 0px;
-            padding: 10px;
-            margin-bottom: 8px;
-            font-size: 10px;
-            font-family: 'Fira Code', monospace;
-            color: #b4b9c1;
+            background-color: var(--vscode-editorWidget-background);
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            font-family: var(--vscode-editor-font-family), monospace;
+            color: var(--vscode-editor-foreground);
           }
 
           .credentials-box p {
-            margin-bottom: 4px;
-            color: #b4b9c1;
+            margin-bottom: 6px;
+            color: var(--vscode-descriptionForeground);
           }
 
           .copy-btn {
-            background-color: transparent;
-            border: 1px solid #1a1f2e;
-            color: #e8e8e8;
-            padding: 4px 8px;
-            font-size: 10px;
+            background-color: var(--vscode-button-secondaryBackground, rgba(128, 128, 128, 0.2));
+            border: none;
+            color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 500;
             cursor: pointer;
-            border-radius: 2px;
-            margin-top: 4px;
+            border-radius: 4px;
+            margin-top: 6px;
+            transition: background 0.2s;
           }
 
           .copy-btn:hover {
-            background-color: var(--vscode-hover-background);
+            background-color: var(--vscode-button-secondaryHoverBackground, rgba(128, 128, 128, 0.3));
           }
         </style>
       </head>
@@ -828,23 +878,39 @@ export class InboxWebviewProvider {
         <div class="container">
           <!-- SIDEBAR - Lista de emails -->
           <div class="sidebar">
-            <div class="header" style="align-items: flex-start;">
-              <div style="display: flex; flex-direction: column; justify-content: center;">
-                <img src="${logoUri}" alt="RZP Mail" style="height: 64px; width: auto; object-fit: contain; object-position: left center;">
-                <span style="font-size: 9px; color: #6b7280; margin-top: 4px;" title="Para no guardar basura, los correos expiran a las 2 horas o al llegar a 50">Límite: 50 o 2h</span>
+            <div class="sidebar-header" style="display: flex; flex-direction: column; align-items: center; padding: 24px 20px 16px; background: var(--vscode-sideBar-background); border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border, rgba(128, 128, 128, 0.1));">
+              <!-- Logo y Límite centrados -->
+              <img src="${logoUri}" alt="RZP Mail" style="height: 56px; width: auto; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+              
+              <div style="font-size: 10px; font-weight: 600; color: var(--vscode-descriptionForeground); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; background: var(--vscode-badge-background, rgba(128,128,128,0.1)); color: var(--vscode-badge-foreground); padding: 4px 10px; border-radius: 12px;" title="Para no llenar tu disco, los correos se auto-eliminan a las 2h o al llegar a 50">
+                Límite: 50 emails
               </div>
-              <div style="display: flex; gap: 4px;">
-                <button class="btn btn-secondary" onclick="showConfig()" style="font-size: 11px;">Config</button>
-                <button class="btn btn-secondary" onclick="clearInbox()" style="font-size: 11px;" title="Borrar todo el historial y liberar disco">Limpiar</button>
+
+              <!-- Botones de Acción (Config y Limpiar en fila) -->
+              <div style="display: flex; gap: 8px; width: 100%;">
+                <button class="btn btn-secondary" onclick="showConfig()" style="flex: 1; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border-radius: 4px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                  Config
+                </button>
+                <button class="btn btn-secondary" onclick="clearInbox()" title="Borrar todo el historial y liberar disco" style="flex: 1; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border-radius: 4px; border-color: transparent; background: var(--vscode-button-secondaryBackground, rgba(128,128,128,0.1)); color: var(--vscode-button-secondaryForeground);">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  Limpiar
+                </button>
               </div>
             </div>
 
-            <div class="stats" id="emailStats">
-              Total: 0 | Último: -
+            <!-- Buscador elegante -->
+            <div class="sidebar-search" style="padding: 16px 20px; background: var(--vscode-sideBar-background);">
+              <div style="position: relative; display: flex; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--vscode-descriptionForeground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 12px; opacity: 0.7;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="searchInput" oninput="filterEmails()" placeholder="Buscar emails..." style="width: 100%; padding: 8px 12px 8px 34px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); border-radius: 4px; font-size: 12px; outline: none; transition: border-color 0.2s;">
+              </div>
             </div>
 
-            <div style="padding: 8px; border-bottom: 1px solid #1a1f2e;">
-              <input type="text" id="searchInput" oninput="filterEmails()" placeholder=" Buscar por asunto o remitente..." style="width: 100%; padding: 6px; background: #1a1f2e; border: 1px solid #2d3748; color: #e8e8e8; border-radius: 4px; font-size: 11px; outline: none;">
+            <!-- Estadísticas integradas separando el buscador de la lista -->
+            <div class="stats" id="emailStats" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; font-size: 11px; font-weight: 600; color: var(--vscode-descriptionForeground); background: var(--vscode-sideBarSectionHeader-background, rgba(0,0,0,0.02)); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border, rgba(128, 128, 128, 0.1)); border-top: 1px solid var(--vscode-sideBarSectionHeader-border, rgba(128, 128, 128, 0.1));">
+              <span>Inbox</span>
+              <span id="emailStatsText" style="opacity: 0.8; font-weight: normal;">0 / 50</span>
             </div>
 
             <div class="email-list" id="emailList">
@@ -866,34 +932,34 @@ export class InboxWebviewProvider {
               </div>
 
               <div class="welcome-section">
-                <h3 style="margin-bottom: 8px;"> Configuración SMTP</h3>
-                <p style="font-size: 11px; color: #b4b9c1; margin-bottom: 12px; line-height: 1.5; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 4px; border-left: 2px solid #50c878;">
-                  <strong>¿Cómo funciona?</strong> MailCat es un servidor de pruebas. Solo dale a <b>Iniciar Servidor</b> y copia las credenciales.<br><br>
-                  <i>Tip: Usa el puerto <b>2525</b> (o mayores a 1024) para evitar restricciones del sistema. El usuario y contraseña pueden ser cualquier texto inventado.</i>
+                <h3 style="margin-bottom: 12px; font-size: 16px;">🚀 Configuración SMTP</h3>
+                <p style="font-size: 13px; color: var(--vscode-descriptionForeground); margin-bottom: 20px; line-height: 1.6; background: var(--vscode-editorWidget-background); padding: 16px; border-radius: 8px; border-left: 4px solid var(--vscode-charts-green, #4CAF50); box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                  <strong>¿Cómo funciona?</strong> MailCat es tu servidor de pruebas aislado. Solo dale a <b>Iniciar Servidor</b> y copia  credenciales.<br><br>
+                  <i>Tip: Usa el puerto <b>2525</b> (o puertos > 1024) para evitar restricciones. El usuario y clave pueden ser el texto que prefieras.</i>
                 </p>
-                <div class="credentials-display" style="display: grid; gap: 8px;">
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center;">
-                    <label style="font-size: 11px; color: #6b7280;">Host:</label>
-                    <div style="font-size: 12px;">localhost</div>
+                <div class="credentials-display" style="display: flex; flex-direction: column; gap: 12px;">
+                  <div style="display: grid; grid-template-columns: 100px 1fr; gap: 12px; align-items: center;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--vscode-descriptionForeground); text-transform: uppercase;">Host:</label>
+                    <div style="font-size: 14px; font-weight: 500; font-family: var(--vscode-editor-font-family), monospace;">localhost</div>
                   </div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center;">
-                    <label style="font-size: 11px; color: #6b7280;">Puerto:</label>
-                    <input type="number" id="smtpPort" style="padding: 4px; background: #1a1f2e; color: #e8e8e8; border: 1px solid #2d3748; font-family: monospace; font-size: 12px; text-align: right;">
+                  <div style="display: grid; grid-template-columns: 100px 1fr; gap: 12px; align-items: center;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--vscode-descriptionForeground); text-transform: uppercase;">Puerto:</label>
+                    <input type="number" id="smtpPort" style="padding: 8px; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border); border-radius: 4px; font-family: monospace; font-size: 14px; outline: none;">
                   </div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center;">
-                    <label style="font-size: 11px; color: #6b7280;">Usuario:</label>
-                    <input type="text" id="smtpUser" value="rzp" style="padding: 4px; background: #1a1f2e; color: #e8e8e8; border: 1px solid #2d3748; font-family: monospace; font-size: 12px;">
+                  <div style="display: grid; grid-template-columns: 100px 1fr; gap: 12px; align-items: center;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--vscode-descriptionForeground); text-transform: uppercase;">Usuario:</label>
+                    <input type="text" id="smtpUser" value="rzp" style="padding: 8px; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border); border-radius: 4px; font-family: monospace; font-size: 14px; outline: none;">
                   </div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center;">
-                    <label style="font-size: 11px; color: #6b7280;">Contraseña:</label>
-                    <input type="password" id="smtpPass" style="padding: 4px; background: #1a1f2e; color: #e8e8e8; border: 1px solid #2d3748; font-family: monospace; font-size: 12px;">
+                  <div style="display: grid; grid-template-columns: 100px 1fr; gap: 12px; align-items: center;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--vscode-descriptionForeground); text-transform: uppercase;">Contraseña:</label>
+                    <input type="password" id="smtpPass" style="padding: 8px; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border); border-radius: 4px; font-family: monospace; font-size: 14px; outline: none;">
                   </div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;">
-                    <button class="btn btn-secondary" data-config-btn onclick="updateSmtpConfig()" style="font-size: 11px; padding: 6px;">Guardar</button>
-                    <button class="btn btn-secondary" data-config-btn onclick="copyEnvConfig()" style="background-color: #d97706; font-size: 11px; padding: 6px;"> .env</button>
+                  <div style="display: flex; gap: 12px; margin-top: 8px;">
+                    <button class="btn btn-secondary" data-config-btn onclick="updateSmtpConfig()" style="font-size: 12px; flex: 1;">Guardar Config</button>
+                    <button class="btn btn-secondary" data-config-btn onclick="copyEnvConfig()" style="background-color: var(--vscode-charts-orange, #d97706); color: white; border: none; font-size: 12px; flex: 1;">Copiar a .env</button>
                   </div>
-                  <button class="start-btn" id="startBtn" onclick="startServer()" style="width: 100%; margin-top: 8px; padding: 8px; font-size: 12px; font-weight: bold;"> Iniciar Servidor</button>
-                  <button class="start-btn" id="stopBtn" onclick="stopServer()" style="display: none; width: 100%; margin-top: 8px; padding: 8px; font-size: 12px; font-weight: bold; background-color: transparent; border-color: #ef4444; color: #ef4444;"> Detener Servidor</button>
+                  <button class="start-btn" id="startBtn" onclick="startServer()" style="width: 100%; margin-top: 12px; padding: 12px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">▶ Iniciar Servidor</button>
+                  <button class="start-btn" id="stopBtn" onclick="stopServer()" style="display: none; width: 100%; margin-top: 12px; padding: 12px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; background-color: transparent; border: 2px solid var(--vscode-editorError-foreground, #ef4444); color: var(--vscode-editorError-foreground, #ef4444);">■ Detener Servidor</button>
                 </div>
               </div>
 
