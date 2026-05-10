@@ -13,7 +13,7 @@ let emailIdCounter = 0;
 let emailReceivedCount = 0;
 
 export function setOnEmailReceived(callback: (email: Email) => void) {
-  console.log("📌 [SMTP] Registrando callback para nuevos emails");
+  console.log(" [SMTP] Registrando callback para nuevos emails");
   onEmailReceived = callback;
 }
 
@@ -36,7 +36,7 @@ export async function startSMTPServer(port: number = 2525): Promise<void> {
           }
 
           try {
-            // Parsear direcciones correctamente
+          
             const parseAddresses = (addresses: any) => {
               if (!addresses) return [];
               if (typeof addresses === 'string') return [addresses];

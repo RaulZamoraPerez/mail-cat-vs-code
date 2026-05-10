@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="images/logo.png" width="200" alt="MailCat Logo" />
+  <img src="images/logo-name.png" width="200" alt="MailCat Logo" />
   <h1>extension 🐱 </h1>
   <p><em>The easiest way to catch, preview, and test emails directly in VS Code.</em></p>
 </div>

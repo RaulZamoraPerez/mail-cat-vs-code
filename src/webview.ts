@@ -34,16 +34,16 @@ export class InboxWebviewProvider {
   }
 
   public createInboxPanel() {
-    // Si ya existe un panel, solo lo mostramos
+
     if (this._panel) {
       this._panel.reveal(vscode.ViewColumn.Active);
       return;
     }
 
-    // Crear nuevo panel en la columna activa (como una tab normal)
+  
     this._panel = vscode.window.createWebviewPanel(
       InboxWebviewProvider.viewType,
-      "RZP Mail Inbox",
+      "Mail Cat",
       vscode.ViewColumn.Active,
       {
         enableScripts: true,
@@ -52,9 +52,12 @@ export class InboxWebviewProvider {
       }
     );
 
+    this._panel.title = "Mail Cat"; 
+    this._panel.iconPath = vscode.Uri.joinPath(this._extensionUri, 'images', 'logo.svg');
+
     this._panel.webview.html = this._getHtmlForWebview(this._panel.webview);
 
-    // Enviar configuración guardada
+   
     setTimeout(() => {
       const config = this.getSmtpConfig();
       this._panel?.webview.postMessage({
@@ -65,7 +68,7 @@ export class InboxWebviewProvider {
       });
     }, 500);
 
-    // Manejar mensajes del webview
+  
     this._panel.webview.onDidReceiveMessage((data) => {
       switch (data.command) {
         case "getEmails":
@@ -128,12 +131,12 @@ export class InboxWebviewProvider {
       }
     });
 
-    // Notificar que el panel fue creado
+   
     if (this._onPanelChange) {
       this._onPanelChange(this._panel);
     }
 
-    // Limpiar cuando se cierre
+  
     this._panel.onDidDispose(() => {
       this._panel = undefined;
       if (this._onPanelChange) {
@@ -141,7 +144,6 @@ export class InboxWebviewProvider {
       }
     });
 
-    // Pedir actualización inicial
     this.refreshInbox();
   }
 
@@ -167,10 +169,13 @@ export class InboxWebviewProvider {
     if (!this._panel) return;
 
     const emails = emailStorage.getEmails();
+    const config = this.getSmtpConfig();
     console.log(`📤 [Webview] Enviando ${emails.length} emails al webview`);
     this._panel.webview.postMessage({
       command: "updateEmails",
       isRunning: isServerRunning(),
+      port: config.port,
+      pass: config.pass,
       emails: emails.map(email => ({
         ...email,
         toDisplay: email.to.join(", "),
@@ -181,6 +186,7 @@ export class InboxWebviewProvider {
 
   private _getHtmlForWebview(webview: vscode.Webview): string {
     const logoUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'images', 'logo.png'));
+    const logo2Uri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'images', 'logo2.png'));
     return `
       <!DOCTYPE html>
       <html lang="es">
@@ -480,7 +486,7 @@ export class InboxWebviewProvider {
             flex: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow: auto; /* Cambiado de hidden a auto para permitir scroll si los controles + preview exceden el espacio */
             min-height: 0;
           }
 
@@ -524,12 +530,12 @@ export class InboxWebviewProvider {
 
           .preview-container {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            display: block; /* Cambiado de flex a block para evitar recortes al centrar */
+            overflow-y: auto !important;
             min-height: 0;
-            padding: 16px 24px;
-            background-color: var(--vscode-editorWidget-background, #f3f3f3); /* Un fondo gris tenue nativo para resaltar la hoja de papel (email) */
+            padding: 40px 24px;
+            background-color: var(--vscode-editorWidget-background, #0a0e14); 
+            text-align: center; /* Centrado para elementos block e inline-block */
           }
 
           .preview-iframe {
@@ -695,13 +701,14 @@ export class InboxWebviewProvider {
 
           .device-mockup {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            margin: 0 auto;
+            margin: 0 auto 40px; /* Margen automático a los lados para centrar y abajo para aire */
             border-radius: 8px;
             overflow: hidden;
-            display: flex;
+            display: inline-flex; /* Para que respete el text-align center del padre */
             flex-direction: column;
             position: relative;
             background: #000;
+            text-align: left; /* Resetear texto dentro del mockup */
           }
 
           .device-mockup.mobile {
@@ -923,7 +930,7 @@ export class InboxWebviewProvider {
           <!-- MAIN - Detalle del email -->
           <div class="main-content" id="mainContent">
             <div class="welcome-screen" id="welcomeScreen">
-              <img src="${logoUri}" alt="RZP Mail Sandbox" style="max-height: 180px; width: auto; object-fit: contain; margin-bottom: 24px;">
+              <img src="${logo2Uri}" alt="RZP Mail Sandbox" style="max-height: 180px; width: auto; object-fit: contain; margin-bottom: 24px;">
               <div class="welcome-header" style="display: none;">RZP Mail Sandbox</div>
               
               <div class="status-indicator">
@@ -1023,7 +1030,7 @@ let currentPass = 'rzp';
           const ICON_MAIL_SCREEN = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g fill="none"><path fill="currentColor" d="M13.435 19.174A7.15 7.15 0 0 0 14.738 23H9.26a7.16 7.16 0 0 0 1.303-3.826z"/><path fill="currentColor" d="M23 16.304v1.913a.957.957 0 0 1-.957.957H1.957A.956.956 0 0 1 1 18.217v-1.913z"/><path fill="currentColor" d="M23 1.957v14.347H1V1.957A.957.957 0 0 1 1.957 1h20.087a.956.956 0 0 1 .956.957"/><path fill="currentColor" d="M1 1.957v14.347h4.175L20.48 1H1.957A.957.957 0 0 0 1 1.957"/><path fill="currentColor" d="M16.302 5.783h-8.61a.957.957 0 0 0-.956.956v4.783a.957.957 0 0 0 .957.956h8.609a.957.957 0 0 0 .956-.956V6.739a.956.956 0 0 0-.956-.956"/><path fill="currentColor" d="M7.696 5.783a.957.957 0 0 0-.957.956v4.783a.957.957 0 0 0 .957.956H9l6.696-6.695z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M16.305 5.783h-8.61a.957.957 0 0 0-.956.956v4.783a.957.957 0 0 0 .957.956h8.609a.956.956 0 0 0 .956-.956V6.739a.956.956 0 0 0-.957-.956" stroke-width=".8"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m6.74 7.217l4.304 2.2a1.91 1.91 0 0 0 1.913 0l4.304-2.2M9.262 23a7.16 7.16 0 0 0 1.303-3.826M14.737 23a7.16 7.16 0 0 1-1.302-3.826M7.695 23h8.609M1 16.304h22" stroke-width=".8"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M22.044 1H1.957A.957.957 0 0 0 1 1.957v16.26a.957.957 0 0 0 .957.957h20.087a.956.956 0 0 0 .956-.957V1.957A.956.956 0 0 0 22.044 1" stroke-width=".8"/></g></svg>';
           const ICON_MAIL_GEOMETRIC = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g fill="none"><path fill="currentColor" d="M22.615 5.296a2.86 2.86 0 0 0 .84-2.29c-.26-2.67-4.451-2-7.011 2.63a.3.3 0 0 0 .1.41a.31.31 0 0 0 .46-.11c.8-1.27 2.52-3.14 4-3.43a1.6 1.6 0 0 1 1.22.06c.44.33.2 1.25-.12 1.71l-.75.73c-.07.12-.64.53-.3 1s1 0 1.61.7c1.09 1.21-1.77 1.89-1.69 2.7c0 .36.43.42.85.51c1.72.321-.62 3.151-3.3 3.481a.35.35 0 0 0-.3.37c.08.72 2.06-.1 2.65-.41a5.8 5.8 0 0 0 1.91-1.47a1.85 1.85 0 0 0-.11-2.68c2.03-1.36 1.5-3.3-.06-3.91m-17.132 7.79a6 6 0 0 1-2-.72c-.68-.38-1.671-1.14-1.841-1.92c-.28-1.36 1.21-.35 1.36-1.35a.65.65 0 0 0-.28-.57c-.18-.13-.66-.41-.69-.43a3 3 0 0 1-.7-.6a.88.88 0 0 1 .55-1.49c.22 0 .77 0 1.12-.32c.63-.791-1.24-1.071-1.37-2.681a.79.79 0 0 1 .23-.74a.84.84 0 0 1 .49-.15a4 4 0 0 1 2.53 1.07c.847.71 1.582 1.542 2.18 2.47a.29.29 0 0 0 .4.1a.3.3 0 0 0 .11-.41a11.6 11.6 0 0 0-2.18-2.75a5.5 5.5 0 0 0-2.11-1.27a3.9 3.9 0 0 0-1.13-.16a1.77 1.77 0 0 0-.88.29a1.7 1.7 0 0 0-.71 1.29a2.83 2.83 0 0 0 .84 2.26a2.3 2.3 0 0 0-.9.63a1.9 1.9 0 0 0-.5 1.2c-.011.42.115.83.36 1.17c.273.361.613.666 1 .9a1.44 1.44 0 0 0-.52.66a1.7 1.7 0 0 0-.07.901c.067.407.239.79.5 1.11a6.1 6.1 0 0 0 1.86 1.43a6.9 6.9 0 0 0 2.28.71a.34.34 0 0 0 .37-.3a.33.33 0 0 0-.3-.33m2.911 4.291a.3.3 0 0 0-.31.28c-.12.56-.27 1.1-.37 1.66a6 6 0 0 0-.1.72c0 .24 0 .48-.05.72v1.7a.34.34 0 0 0 .67.11c.15-.57.31-1.11.43-1.68c.05-.24.09-.48.12-.73a6 6 0 0 0 0-.73c0-.59-.07-1.15-.12-1.74a.29.29 0 0 0-.27-.31m3.721-.27a.301.301 0 0 0-.6-.05a10 10 0 0 0-.25 1.95q.01.562.08 1.12q.105.807.09 1.62a.34.34 0 0 0 .26.4a.35.35 0 0 0 .4-.27c.206-.647.317-1.32.33-2q.015-.577-.06-1.15c-.07-.53-.22-1.06-.25-1.62m3.8 2.11c-.11-.47-.27-.9-.4-1.36a.3.3 0 0 0-.527-.154a.3.3 0 0 0-.063.214a14 14 0 0 0-.08 1.43q.02.603.16 1.19c.1.46.23.9.34 1.36a.34.34 0 0 0 .36.31a.34.34 0 0 0 .31-.37q.037-.714 0-1.43q.022-.3 0-.6a4 4 0 0 0-.1-.59"/><path fill="currentColor" d="M16.814 7.556a1.85 1.85 0 0 0-.77-.2a36 36 0 0 0-4.381 0a19 19 0 0 0-4.541.65c-.3.14-.73.41-.73 1.76q.006 2.509.28 5.002a.74.74 0 0 0 .66.64c1.14 0 5.07-.11 7.441-.23c.78 0 1.4-.07 1.69-.1c.136-.012.269-.05.39-.11a1.15 1.15 0 0 0 .33-.73q.246-1.823.24-3.661c.014-.751-.05-1.502-.19-2.24a1.47 1.47 0 0 0-.42-.78m-1 .91a1.4 1.4 0 0 1 .31 0c-.6.32-1.89 1-3.051 1.54l-1.23.561c-.46.2-.55.29-1.07 0s-1-.59-1.51-1s-.96-.56-1.341-.89q.935-.143 1.88-.19a52 52 0 0 1 5.961-.02zm.37 5.542c0 .08-.11.09-.19.1c-1 .07-3.061.27-5.001.4c-2.44.16-3.371.2-3.651.21a.1.1 0 0 1-.11-.09a21 21 0 0 1-.1-2.43c0-1.14 0-2.391.1-3.091a23 23 0 0 0 2.19 1.94a4.5 4.5 0 0 0 1.65.91a4.7 4.7 0 0 0 1.93-.69a38 38 0 0 0 3.211-2.12c0 .24.05.51.07.81a30 30 0 0 1-.1 4.05"/></g></svg>';
 
-          function startServer() {
+          function startServer() { updateSmtpConfig();
             const btn = document.getElementById('startBtn');
             if (btn) {
               btn.disabled = true;
@@ -1243,7 +1250,7 @@ client.Send(mailMessage);\`;
             setTimeout(() => {
               const iframe = document.getElementById('emailIframe');
               if (iframe && email.html) {
-                iframe.srcdoc = email.html;
+                iframe.srcdoc = injectScrollbarHide(email.html);
               }
             }, 100);          }
 
@@ -1279,13 +1286,14 @@ client.Send(mailMessage);\`;
                 </div>
 
                 <div class="tabs">
-                  <div class="tab active" onclick="switchTab('preview', this)">HTML</div>
+                  <div class="tab active" onclick="switchTab('preview', this)">Preview</div>
+                  <div class="tab" onclick="switchTab('integrations', this)">Integrations</div>
                   <div class="tab" onclick="switchTab('html-source', this)">HTML Source</div>
                   <div class="tab" onclick="switchTab('text', this)">Text</div>
-                  <div class="tab" onclick="switchTab('raw', this)">Raw</div>
                   <div class="tab" onclick="switchTab('eslint', this)">ESLint</div>
                   <div class="tab" onclick="switchTab('spam', this)">Spam Analysis</div>
                   <div class="tab" onclick="switchTab('html-check', this)">HTML Check</div>
+                  <div class="tab" onclick="switchTab('raw', this)">Raw</div>
                   \${email.attachments && email.attachments.length > 0 ? \`<div class="tab" onclick="switchTab('attachments', this)"> Adjuntos (\${email.attachments.length})</div>\` : ''}
                 </div>
 
@@ -1299,7 +1307,7 @@ client.Send(mailMessage);\`;
             setTimeout(() => {
               const iframe = document.getElementById('emailIframe');
               if (iframe && email.html) {
-                iframe.srcdoc = email.html;
+                iframe.srcdoc = injectScrollbarHide(email.html);
               }
             }, 100);
           }
@@ -1469,12 +1477,169 @@ client.Send(mailMessage);\`;
                     <span style="color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 12px; border-radius: 12px;">\${linter.passedCount} checks pasaron</span>
                     <span style="color: #f59e0b; background: rgba(245,158,11,0.1); padding: 4px 12px; border-radius: 12px;">\${linter.warningsCount} advertencias</span>
                     <span style="color: #ef4444; background: rgba(239,68,68,0.1); padding: 4px 12px; border-radius: 12px;">\${linter.errorsCount} críticos</span>
-                  </div>
-                </div>
                 <div style="border-top: 1px solid #333; margin-bottom: 24px;"></div>
-                \${itemsHtml}
+                <div style="display: flex; flex-direction: column;">
+                  \${itemsHtml}
+                </div>
               </div>
             \`;
+          }
+
+          function renderIntegrations(email) {
+            const port = currentPort || '2525';
+            const user = 'rzp';
+            const pass = currentPass || 'rzp';
+
+            return \`
+              <div style="padding: 32px; max-width: 1000px; margin: 0 auto; font-family: var(--vscode-font-family), sans-serif;">
+                
+                <!-- Sección de Instrucciones / Guía -->
+                <div style="margin-bottom: 40px;">
+                  <h3 style="font-size: 14px; font-weight: 600; color: var(--vscode-foreground); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    Quick Start Guide
+                  </h3>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                    <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); padding: 16px; border-radius: 8px;">
+                      <div style="font-weight: 600; color: #10b981; margin-bottom: 8px; font-size: 12px;">1. Start Server</div>
+                      <p style="font-size: 11px; opacity: 0.8; line-height: 1.5; margin: 0;">Ve a la pestaña principal y pulsa "Iniciar Servidor" para activar el puerto \${port}.</p>
+                    </div>
+                    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 16px; border-radius: 8px;">
+                      <div style="font-weight: 600; color: #3b82f6; margin-bottom: 8px; font-size: 12px;">2. Copy Config</div>
+                      <p style="font-size: 11px; opacity: 0.8; line-height: 1.5; margin: 0;">Copia las credenciales de abajo o usa el snippet para tu lenguaje favorito.</p>
+                    </div>
+                    <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); padding: 16px; border-radius: 8px;">
+                      <div style="font-weight: 600; color: #f59e0b; margin-bottom: 8px; font-size: 12px;">3. Send Email</div>
+                      <p style="font-size: 11px; opacity: 0.8; line-height: 1.5; margin: 0;">Envía tus correos a localhost y búscalos en la lista lateral de Mail Cat.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-bottom: 40px;">
+                  <h3 style="font-size: 13px; font-weight: 600; color: var(--vscode-foreground); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8;">SMTP Configuration</h3>
+                  <div class="credentials-display" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1px; background: var(--vscode-widget-border); padding: 1px; border-radius: 8px; overflow: hidden; border: 1px solid var(--vscode-widget-border);">
+                    <div style="background: var(--vscode-editor-background); padding: 24px;">
+                      <div style="font-size: 10px; color: var(--vscode-descriptionForeground); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">Host</div>
+                      <div style="font-family: 'Fira Code', monospace; font-size: 15px; color: var(--vscode-foreground);">localhost</div>
+                    </div>
+                    <div style="background: var(--vscode-editor-background); padding: 24px;">
+                      <div style="font-size: 10px; color: var(--vscode-descriptionForeground); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">Port</div>
+                      <div style="font-family: 'Fira Code', monospace; font-size: 15px; color: #4ade80; font-weight: 600;">\${port}</div>
+                    </div>
+                    <div style="background: var(--vscode-editor-background); padding: 24px;">
+                      <div style="font-size: 10px; color: var(--vscode-descriptionForeground); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">Username</div>
+                      <div style="font-family: 'Fira Code', monospace; font-size: 15px; color: var(--vscode-foreground);">\${user}</div>
+                    </div>
+                    <div style="background: var(--vscode-editor-background); padding: 24px;">
+                      <div style="font-size: 10px; color: var(--vscode-descriptionForeground); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">Password</div>
+                      <div style="font-family: 'Fira Code', monospace; font-size: 15px; color: var(--vscode-foreground);">\${pass}</div>
+                    </div>
+                  </div>
+                  <div style="margin-top: 20px; display: flex; gap: 12px;">
+                    <button class="btn btn-secondary" onclick="copyEnvConfig()" style="font-size: 12px; flex: 1; padding: 10px; border-radius: 6px;">Copiar .env</button>
+                    <button class="btn btn-secondary" onclick="copyActiveConfig()" style="font-size: 12px; flex: 1; padding: 10px; border-radius: 6px;">Copiar JSON</button>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h3 style="margin: 0; font-size: 13px; font-weight: 600; color: var(--vscode-foreground); text-transform: uppercase; letter-spacing: 1px; opacity: 0.8;">Code Snippets</h3>
+                    <select id="detailSnippetLanguage" onchange="updateDetailSnippet()" style="background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border); padding: 6px 12px; border-radius: 4px; font-size: 11px; outline: none; cursor: pointer;">
+                      <option value="node">Node.js (Nodemailer)</option>
+                      <option value="php">PHP (PHPMailer)</option>
+                      <option value="python">Python (smtplib)</option>
+                      <option value="csharp">C# (.NET)</option>
+                    </select>
+                  </div>
+                  <div class="code-example" style="position: relative; margin-bottom: 0; border-radius: 8px; border: 1px solid var(--vscode-widget-border);">
+                    <button onclick="copyDetailSnippet()" style="position: absolute; right: 12px; top: 12px; background: rgba(255,255,255,0.1); border: none; color: white; cursor: pointer; padding: 6px 12px; border-radius: 4px; font-size: 10px; font-weight: 600; transition: background 0.2s;">Copiar</button>
+                    <pre id="detailSnippetCode" style="margin: 0; padding: 20px; padding-top: 32px; white-space: pre-wrap; font-family: 'Fira Code', monospace; font-size: 11.5px; max-height: 400px; overflow-y: auto; line-height: 1.6;"></pre>
+                  </div>
+                </div>
+              </div>
+            \`;
+          }
+
+          function updateDetailSnippet() {
+            const lang = document.getElementById('detailSnippetLanguage')?.value || 'node';
+            const port = currentPort || '2525';
+            const user = 'rzp';
+            const pass = currentPass || 'rzp';
+            
+            let code = '';
+            if (lang === 'node') {
+              code = \`const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  host: 'localhost',
+  port: \${port},
+  auth: { user: '\${user}', pass: '\${pass}' }
+});
+
+await transporter.sendMail({
+  from: 'test@app.com',
+  to: 'user@test.com',
+  subject: 'Prueba MailCat',
+  html: '<h1>¡Funciona!</h1>'
+});\`;
+            } else if (lang === 'php') {
+              code = \`use PHPMailer\\\\PHPMailer\\\\PHPMailer;
+
+$mail = new PHPMailer(true);
+$mail->isSMTP();
+$mail->Host       = 'localhost';
+$mail->SMTPAuth   = true;
+$mail->Username   = '\${user}';
+$mail->Password   = '\${pass}';
+$mail->Port       = \${port};
+
+$mail->setFrom('test@app.com');
+$mail->addAddress('user@test.com');
+$mail->isHTML(true);
+$mail->Subject = 'Prueba MailCat';
+$mail->Body    = '<h1>¡Funciona!</h1>';
+$mail->send();\`;
+            } else if (lang === 'python') {
+              code = \`import smtplib
+from email.message import EmailMessage
+
+msg = EmailMessage()
+msg.set_content('¡Funciona!')
+msg['Subject'] = 'Prueba MailCat'
+msg['From'] = 'test@app.com'
+msg['To'] = 'user@test.com'
+
+with smtplib.SMTP('localhost', \${port}) as server:
+    server.login('\${user}', '\${pass}')
+    server.send_message(msg)\`;
+            } else if (lang === 'csharp') {
+              code = \`using System.Net.Mail;
+using System.Net;
+
+var client = new SmtpClient("localhost", \${port}) {
+    Credentials = new NetworkCredential("\${user}", "\${pass}"),
+    EnableSsl = false
+};
+
+var mailMessage = new MailMessage
+{
+    From = new MailAddress("test@app.com"),
+    Subject = "Prueba MailCat",
+    Body = "<h1>¡Funciona!</h1>",
+    IsBodyHtml = true,
+};
+mailMessage.To.Add("user@test.com");
+
+client.Send(mailMessage);\`;
+            }
+            
+            const el = document.getElementById('detailSnippetCode');
+            if (el) el.textContent = code;
+          }
+
+          function copyDetailSnippet() {
+            const code = document.getElementById('detailSnippetCode')?.textContent || '';
+            vscode.postMessage({ command: 'copyToClipboard', text: code, message: 'Snippet copiado al portapapeles' });
           }
 
           let isDarkMode = false;
@@ -1510,7 +1675,7 @@ client.Send(mailMessage);\`;
                 <div style="width: 1px; height: 16px; background: var(--vscode-widget-border); margin: 0 4px;"></div>
                 <button class="btn btn-secondary" onclick="toggleDarkMode()" id="darkModeBtn" style="font-size: 11px;"> Dark Mode</button>
               </div>
-              <div class="preview-container" style="display: flex; justify-content: center; background: #0a0e14; padding: 24px; min-height: 600px; overflow-y: auto;">
+              <div class="preview-container" id="previewContainer" style="background: #0a0e14; padding: 40px 24px; overflow-y: auto;">
                 <div id="mockupContainer" class="device-mockup desktop">
                   <iframe class="preview-iframe" id="emailIframe" sandbox="allow-same-origin"></iframe>
                 </div>
@@ -1571,9 +1736,12 @@ client.Send(mailMessage);\`;
               setTimeout(() => {
                 const iframe = document.getElementById('emailIframe');
                 if (iframe && email.html) {
-                  iframe.srcdoc = email.html;
+                  iframe.srcdoc = injectScrollbarHide(email.html);
                 }
               }, 50);
+            } else if (tab === 'integrations') {
+              tabContent.innerHTML = renderIntegrations(email);
+              setTimeout(updateDetailSnippet, 50);
             } else if (tab === 'html-source') {
               const escapedHtml = email.html ? escapeHtml(email.html) : 'Sin HTML';
               tabContent.innerHTML = \`<pre class="raw-content" style="padding: 16px; font-family: Consolas, monospace; font-size: 13px; color: #d4d4d4; background: #1e1e1e; border-radius: 4px; overflow-x: auto; margin: 16px;">\${escapedHtml}</pre>\`;
@@ -1617,6 +1785,17 @@ client.Send(mailMessage);\`;
             }
           }
 
+          function injectScrollbarHide(html) {
+            if (!html) return html;
+            const style = \`
+              <style>
+                ::-webkit-scrollbar { display: none !important; }
+                body { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+              </style>
+            \`;
+            return html + style;
+          }
+
           function escapeHtml(text) {
             if (text === null || text === undefined) return '';
             const str = typeof text === 'string' ? text : JSON.stringify(text);
@@ -1648,8 +1827,12 @@ client.Send(mailMessage);\`;
               const welcomeScreen = document.getElementById('welcomeScreen');
               const emptyState = document.getElementById('emptyState');
 
-              // Actualizar estado real del servidor siempre
+           
               updateServerStatus(message.isRunning);
+              
+              // Actualizar puerto y pass actuales
+              if (message.port) currentPort = message.port;
+              if (message.pass) currentPass = message.pass;
               
               if (emails.length > 0) {
                 // Si había estado en modo "sin emails", quitar el empty state

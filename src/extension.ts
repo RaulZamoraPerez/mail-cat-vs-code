@@ -9,7 +9,6 @@ let inboxProvider: InboxWebviewProvider | null = null;
 let statusBarItem: vscode.StatusBarItem;
 let inboxPanel: vscode.WebviewPanel | undefined;
 
-// Proveedor de vista de status en el sidebar
 class StatusViewProvider implements vscode.WebviewViewProvider {
   constructor(private extensionUri: vscode.Uri, private onOpenInbox: () => void) {}
 
@@ -21,14 +20,24 @@ class StatusViewProvider implements vscode.WebviewViewProvider {
 
     this.updateView(webviewView.webview);
 
-    // Manejar mensajes del webview
+    const triggerOpen = () => {
+      this.onOpenInbox();
+      vscode.commands.executeCommand('workbench.action.closeSidebar');
+    };
+
+    if (webviewView.visible) triggerOpen();
+    webviewView.onDidChangeVisibility(() => {
+      if (webviewView.visible) triggerOpen();
+    });
+
+   
     webviewView.webview.onDidReceiveMessage((data) => {
       if (data.command === 'openInbox') {
         this.onOpenInbox();
       }
     });
 
-    // Actualizar cuando cambie el estado del servidor
+   
     setInterval(() => {
       this.updateView(webviewView.webview);
     }, 1000);
@@ -136,7 +145,7 @@ class StatusViewProvider implements vscode.WebviewViewProvider {
 export function activate(context: vscode.ExtensionContext) {
   console.log(' RZP Mail Sandbox activada');
 
-  // Crear status bar
+  
   statusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
     100
@@ -145,7 +154,6 @@ export function activate(context: vscode.ExtensionContext) {
   updateStatusBar();
   context.subscriptions.push(statusBarItem);
 
-  // Registrar el proveedor de vista de status en el sidebar
   const statusViewProvider = new StatusViewProvider(context.extensionUri, () => {
     if (!inboxPanel || !inboxPanel.active) {
       inboxProvider?.createInboxPanel();
@@ -250,7 +258,7 @@ await startSMTPServer(config.port);
     })
   );
 
-  // Comando: Open Inbox
+ 
   context.subscriptions.push(
     vscode.commands.registerCommand("rzp-mail-sandbox.openInbox", () => {
       if (inboxPanel && !inboxPanel.active) {
@@ -261,7 +269,7 @@ await startSMTPServer(config.port);
     })
   );
 
-  // Comando: Copy Config
+
   context.subscriptions.push(
     vscode.commands.registerCommand("rzp-mail-sandbox.copyConfig", () => {
       const config = `host: localhost
@@ -277,7 +285,7 @@ auth: {
     })
   );
 
-  // Comando: Generar archivo .env
+
   context.subscriptions.push(
     vscode.commands.registerCommand("rzp-mail-sandbox.generateEnv", async () => {
       const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -337,14 +345,14 @@ SMTP_PASS=rzp
   );
 
  
- // Escuchar cambios en storage para actualizar UI
+ 
 setInterval(() => {
   if (inboxProvider) {
-    inboxProvider.refreshInbox();  // ← Esto llama _sendEmails cada segundo
+    inboxProvider.refreshInbox(); 
   }
 }, 1000);
 
-  // Comando DEBUG: Ver cuántos emails hay en storage
+  
   context.subscriptions.push(
     vscode.commands.registerCommand("rzp-mail-sandbox.debug-storage", () => {
       const emails = emailStorage.getEmails();

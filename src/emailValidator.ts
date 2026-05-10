@@ -1,6 +1,4 @@
-/**
- * Email Validator - Valida CSS, links, performance, etc
- */
+
 
 export interface SpamValidation {
   score: number;
@@ -64,9 +62,7 @@ export interface ClientCompatibility {
 }
 
 export class EmailValidator {
-  /**
-   * CSS no soportado en clientes de email
-   */
+ 
   private unsupportedCSSProperties = [
     'animation',
     'transform',
@@ -167,7 +163,7 @@ export class EmailValidator {
     const issues: string[] = [];
     let score = 100;
 
-    // Extraer CSS del HTML
+   
     const styleMatch = html.match(/<style[^>]*>([\s\S]*?)<\/style>/gi);
     const inlineStyles = html.match(/style=["']([^"']*)["']/gi);
 
@@ -191,7 +187,7 @@ export class EmailValidator {
       }
     });
 
-    // Detectar media queries complejas
+   
     if (cssContent.includes('@media')) {
       issues.push(' Media queries pueden no funcionar en algunos clientes');
       score -= 3;
@@ -267,7 +263,7 @@ export class EmailValidator {
     const htmlSize = Buffer.byteLength(html, 'utf8');
     const textSize = Buffer.byteLength(text || '', 'utf8');
 
-    // Contar imágenes
+   
     const imageRegex = /<img[^>]+src=["']([^"']*)["']/gi;
     const images: string[] = [];
     let match;
@@ -275,7 +271,6 @@ export class EmailValidator {
       images.push(match[1]);
     }
 
-    // Estimar tamaño de imágenes (promedio 50KB por imagen)
     const estimatedImageSize = images.length * 50000;
 
     // Extraer CSS

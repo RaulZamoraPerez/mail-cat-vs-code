@@ -31,7 +31,7 @@ class EmailStorage {
   private storageFile: string;
 
   constructor() {
-    // Usar directorio de datos de usuario VS Code
+   
     this.storageDir = path.join(os.homedir(), '.vscode-rzp-mail');
     this.storageFile = path.join(this.storageDir, 'emails.json');
     
@@ -40,7 +40,7 @@ class EmailStorage {
       fs.mkdirSync(this.storageDir, { recursive: true });
     }
 
-    // Cargar emails desde disco
+   
     this.loadFromDisk();
   }
 
@@ -109,7 +109,7 @@ class EmailStorage {
   }
 
   clearEmails(): void {
-    // Borrar físicamente todos los adjuntos
+    
     this.emails.forEach(email => this.deleteEmailAttachments(email.id));
     this.emails = [];
     this.saveToDisk();
