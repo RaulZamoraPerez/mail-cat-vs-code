@@ -1,9 +1,45 @@
+# Ignore development files
 .vscode/**
 .vscode-test/**
-out/test/**
-src/**
-.gitignore
 .git/**
+.gitignore
+.prettierrc
+.eslintrc.json
+
+# Source files (already compiled to out/)
+src/**
+tsconfig.json
+
+# Dependencies
+node_modules/**
+package-lock.json
+
+# Test files
+out/test/**
+test/**
+*.test.ts
+
+# Build artifacts
+*.map
 **/*.map
 **/*.ts
-node_modules/**
+.DS_Store
+
+# Documentation
+README-assets/**
+docs/**
+
+# Temporary files
+*.tmp
+*.log
+temp.*
+
+# IDE
+.idea/**
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+.DS_Store

@@ -77,7 +77,7 @@ export class InboxWebviewProvider {
         case "clearInbox":
           emailStorage.clearEmails();
           this._sendEmails();
-          vscode.window.showInformationMessage("Inbox limpiado");
+          vscode.window.showInformationMessage("Bandeja limpiada");
           break;
         case "startServer":
           if (this._onStartServer) {
@@ -92,7 +92,7 @@ export class InboxWebviewProvider {
           this._context.globalState.update('rzp-smtp-port', data.port);
           this._context.globalState.update('rzp-smtp-user', data.user);
           this._context.globalState.update('rzp-smtp-pass', data.pass);
-          vscode.window.showInformationMessage(` Config guardada: puerto ${data.port}`);
+          vscode.window.showInformationMessage(`Configuración guardada: Puerto ${data.port}`);
           break;
         case "generateEnv":
           vscode.commands.executeCommand("rzp-mail-sandbox.generateEnv");
@@ -100,7 +100,10 @@ export class InboxWebviewProvider {
         case "saveSmtpConfig":
           this._context.globalState.update('rzp-smtp-port', data.port);
           this._context.globalState.update('rzp-smtp-pass', data.pass);
-          vscode.window.showInformationMessage(` Config guardada: puerto ${data.port}`);
+          vscode.window.showInformationMessage(`Configuración guardada: Puerto ${data.port}`);
+          break;
+        case "openEmailFullscreen":
+          this._openEmailFullscreen(data.emailId);
           break;
         case "copyToClipboard":
           vscode.env.clipboard.writeText(data.text).then(() => {
@@ -117,7 +120,7 @@ export class InboxWebviewProvider {
             if (answer === "Sí") {
               emailStorage.clearEmails();
               this._sendEmails();
-              vscode.window.showInformationMessage(" Inbox limpiado");
+              vscode.window.showInformationMessage("Bandeja limpiada");
             }
           });
           break;
@@ -170,7 +173,7 @@ export class InboxWebviewProvider {
 
     const emails = emailStorage.getEmails();
     const config = this.getSmtpConfig();
-    console.log(`📤 [Webview] Enviando ${emails.length} emails al webview`);
+    console.log(`[Webview] Enviando ${emails.length} correos al webview`);
     this._panel.webview.postMessage({
       command: "updateEmails",
       isRunning: isServerRunning(),
@@ -182,6 +185,318 @@ export class InboxWebviewProvider {
         dateDisplay: new Date(email.timestamp).toLocaleTimeString("es-ES")
       }))
     });
+  }
+
+  private _openEmailFullscreen(emailId: string) {
+    const email = emailStorage.getEmails().find(e => e.id === emailId);
+    if (!email) {
+      vscode.window.showErrorMessage("Correo no encontrado");
+      return;
+    }
+
+    const panel = vscode.window.createWebviewPanel(
+      'mailcatFullscreen',
+      `${email.subject}`,
+      vscode.ViewColumn.Active,
+      {
+        enableScripts: true,
+        localResourceRoots: [this._extensionUri],
+      }
+    );
+
+    panel.webview.html = this._getFullscreenHtml(email);
+  }
+
+  private _getFullscreenHtml(email: Email): string {
+    return `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${email.subject}</title>
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+
+          html {
+            height: 100%;
+          }
+
+          body {
+            font-family: var(--vscode-font-family), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--vscode-editor-background);
+            color: var(--vscode-editor-foreground);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+          }
+
+          .fullscreen-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            gap: 0;
+          }
+
+          .fullscreen-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.1));
+            background-color: var(--vscode-editor-background);
+            flex-shrink: 0;
+          }
+
+          .fullscreen-subject {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--vscode-editor-foreground);
+          }
+
+          .fullscreen-meta {
+            display: grid;
+            gap: 4px;
+            font-size: 11px;
+          }
+
+          .fullscreen-meta-row {
+            display: grid;
+            grid-template-columns: 70px 1fr;
+            gap: 12px;
+          }
+
+          .fullscreen-meta-label {
+            font-weight: 600;
+            color: var(--vscode-descriptionForeground);
+            text-transform: uppercase;
+            font-size: 9px;
+            letter-spacing: 0.5px;
+          }
+
+          .fullscreen-preview {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 16px;
+            gap: 12px;
+            background: #0a0e14;
+          }
+
+          .device-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            padding: 8px 0;
+          }
+
+          .device-btn {
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: 1px solid transparent;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+          }
+
+          .device-btn:hover {
+            background-color: var(--vscode-button-hoverBackground);
+          }
+
+          .device-btn.active {
+            background-color: var(--vscode-focusBorder);
+          }
+
+          .frame-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow: auto;
+            padding: 20px;
+          }
+
+          .device-mockup {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            background: #000;
+            text-align: left;
+            display: inline-flex;
+            flex-direction: column;
+          }
+
+          .device-mockup.mobile {
+            width: 375px;
+            height: 812px;
+            border-radius: 40px;
+            padding: 12px;
+            background: #000;
+            box-shadow: 
+              inset 0 0 2px 2px rgba(255, 255, 255, 0.15), 
+              0 0 0 2px #4b5563,
+              0 20px 40px rgba(0, 0, 0, 0.8);
+          }
+          
+          .device-mockup.mobile::before {
+            content: '';
+            position: absolute;
+            top: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 24px;
+            background: #000;
+            border-radius: 16px;
+            z-index: 10;
+            box-shadow: inset 0 0 2px rgba(255,255,255,0.1);
+          }
+
+          .device-mockup.tablet {
+            width: 768px;
+            height: 1024px;
+            border-radius: 32px;
+            padding: 24px;
+            background: #000;
+            box-shadow: 
+              inset 0 0 2px 1px rgba(255, 255, 255, 0.1),
+              0 0 0 2px #374151,
+              0 20px 40px rgba(0, 0, 0, 0.8);
+          }
+          
+          .device-mockup.tablet::before {
+             content: '';
+             position: absolute;
+             top: 10px;
+             left: 50%;
+             transform: translateX(-50%);
+             width: 8px;
+             height: 8px;
+             background: #111;
+             border-radius: 50%;
+             box-shadow: inset 0 0 3px rgba(255,255,255,0.5);
+             z-index: 10;
+          }
+
+          .device-mockup.desktop {
+            width: 100%;
+            min-height: 500px;
+            border-radius: 8px;
+            padding-top: 32px;
+            background: #e5e7eb;
+            box-shadow: 
+              0 0 0 1px rgba(255,255,255,0.1),
+              0 20px 40px rgba(0,0,0,0.6);
+          }
+          
+          .device-mockup.desktop::before {
+            content: '';
+            position: absolute;
+            top: 11px;
+            left: 14px;
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #ff5f56;
+            box-shadow: 18px 0 0 #ffbd2e, 36px 0 0 #27c93f;
+            z-index: 10;
+          }
+
+          .device-mockup iframe {
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 100%;
+            background: white;
+            border: none !important;
+            flex: 1;
+          }
+
+          .device-mockup.mobile iframe { border-radius: 28px; }
+          .device-mockup.tablet iframe { border-radius: 8px; }
+          .device-mockup.desktop iframe { border-radius: 0 0 8px 8px; }
+        </style>
+      </head>
+      <body>
+        <div class="fullscreen-container">
+          <div class="fullscreen-header">
+            <div class="fullscreen-subject">${email.subject}</div>
+            <div class="fullscreen-meta">
+              <div class="fullscreen-meta-row">
+                <span class="fullscreen-meta-label">De:</span>
+                <span>${email.from}</span>
+              </div>
+              <div class="fullscreen-meta-row">
+                <span class="fullscreen-meta-label">Para:</span>
+                <span>${email.to.join(", ")}</span>
+              </div>
+              <div class="fullscreen-meta-row">
+                <span class="fullscreen-meta-label">Hora:</span>
+                <span>${new Date(email.timestamp).toLocaleString("es-ES")}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="fullscreen-preview">
+            <div class="device-buttons">
+              <button class="device-btn active" onclick="setDeviceView('desktop')">Desktop</button>
+              <button class="device-btn" onclick="setDeviceView('tablet')">Tablet</button>
+              <button class="device-btn" onclick="setDeviceView('mobile')">Mobile</button>
+              <div style="width: 1px; height: 16px; background: var(--vscode-widget-border); margin: 0 4px;"></div>
+              <button class="device-btn" onclick="toggleDarkMode()" id="darkModeBtn">Dark Mode</button>
+            </div>
+            <div class="frame-wrapper">
+              <div id="mockupContainer" class="device-mockup desktop">
+                <iframe id="emailFrame" srcdoc="${(email.html || '').replace(/"/g, '&quot;')}"></iframe>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          let isDarkModeFS = false;
+          
+          function setDeviceView(device) {
+            const buttons = document.querySelectorAll('.device-btn');
+            const mockupContainer = document.getElementById('mockupContainer');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            mockupContainer.className = 'device-mockup ' + device;
+          }
+
+          function toggleDarkMode() {
+            isDarkModeFS = !isDarkModeFS;
+            const btn = document.getElementById('darkModeBtn');
+            const iframe = document.getElementById('emailFrame');
+            
+            if (isDarkModeFS) {
+              if(btn) { btn.textContent = 'Light Mode'; btn.style.background = '#404040'; }
+              if (iframe) {
+                iframe.style.filter = 'invert(1) hue-rotate(180deg)';
+                iframe.style.backgroundColor = '#fff';
+              }
+            } else {
+              if(btn) { btn.textContent = 'Dark Mode'; btn.style.background = ''; }
+              if (iframe) {
+                iframe.style.filter = 'none';
+                iframe.style.backgroundColor = '';
+              }
+            }
+          }
+        </script>
+      </body>
+      </html>
+    `;
   }
 
   private _getHtmlForWebview(webview: vscode.Webview): string {
@@ -397,6 +712,41 @@ export class InboxWebviewProvider {
             border-bottom: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.1));
             background-color: var(--vscode-editor-background);
             flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+          }
+
+          .detail-header-content {
+            flex: 1;
+          }
+
+          .detail-header-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+          }
+
+          .btn-fullscreen {
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: 1px solid transparent;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+          }
+
+          .btn-fullscreen:hover {
+            background-color: var(--vscode-button-hoverBackground);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+
+          .btn-fullscreen:active {
+            transform: translateY(1px);
           }
 
           .detail-subject {
@@ -444,6 +794,8 @@ export class InboxWebviewProvider {
             background-color: var(--vscode-editor-background);
             flex-shrink: 0;
             gap: 4px;
+            overflow-x: auto;
+            flex-wrap: wrap;
           }
 
           .tab {
@@ -939,7 +1291,7 @@ export class InboxWebviewProvider {
               </div>
 
               <div class="welcome-section">
-                <h3 style="margin-bottom: 12px; font-size: 16px;">🚀 Configuración SMTP</h3>
+                <h3 style="margin-bottom: 12px; font-size: 16px;"> Configuración SMTP</h3>
                 <p style="font-size: 13px; color: var(--vscode-descriptionForeground); margin-bottom: 20px; line-height: 1.6; background: var(--vscode-editorWidget-background); padding: 16px; border-radius: 8px; border-left: 4px solid var(--vscode-charts-green, #4CAF50); box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                   <strong>¿Cómo funciona?</strong> MailCat es tu servidor de pruebas aislado. Solo dale a <b>Iniciar Servidor</b> y copia  credenciales.<br><br>
                   <i>Tip: Usa el puerto <b>2525</b> (o puertos > 1024) para evitar restricciones. El usuario y clave pueden ser el texto que prefieras.</i>
@@ -1263,25 +1615,30 @@ client.Send(mailMessage);\`;
             detailContainer.innerHTML = \`
               <div class="email-detail">
                 <div class="detail-header">
-                  <div class="detail-subject">\${email.subject}</div>
-                  <div class="detail-meta">
-                    <div class="detail-meta-row">
-                      <span class="detail-meta-label">De:</span>
-                      <span>\${email.from}</span>
+                  <div class="detail-header-content">
+                    <div class="detail-subject">\${email.subject}</div>
+                    <div class="detail-meta">
+                      <div class="detail-meta-row">
+                        <span class="detail-meta-label">De:</span>
+                        <span>\${email.from}</span>
+                      </div>
+                      <div class="detail-meta-row">
+                        <span class="detail-meta-label">Para:</span>
+                        <span>\${email.toDisplay}</span>
+                      </div>
+                      <div class="detail-meta-row">
+                        <span class="detail-meta-label">Hora:</span>
+                        <span>\${email.dateDisplay}</span>
+                      </div>
+                      \${email.validation && email.validation.performance ? \`
+                      <div class="detail-meta-row">
+                        <span class="detail-meta-label">Peso:</span>
+                        <span style="display: inline-block; padding: 2px 8px; background: var(--vscode-badge-background); color: var(--vscode-badge-foreground); border-radius: 10px; font-size: 11px; font-weight: bold; margin-left: 4px;">\${(email.validation.performance.totalSize / 1024).toFixed(1)} KB</span>
+                      </div>\` : ''}
                     </div>
-                    <div class="detail-meta-row">
-                      <span class="detail-meta-label">Para:</span>
-                      <span>\${email.toDisplay}</span>
-                    </div>
-                    <div class="detail-meta-row">
-                      <span class="detail-meta-label">Hora:</span>
-                      <span>\${email.dateDisplay}</span>
-                    </div>
-                    \${email.validation && email.validation.performance ? \`
-                    <div class="detail-meta-row">
-                      <span class="detail-meta-label">Peso:</span>
-                      <span style="display: inline-block; padding: 2px 8px; background: var(--vscode-badge-background); color: var(--vscode-badge-foreground); border-radius: 10px; font-size: 11px; font-weight: bold; margin-left: 4px;">\${(email.validation.performance.totalSize / 1024).toFixed(1)} KB</span>
-                    </div>\` : ''}
+                  </div>
+                  <div class="detail-header-actions">
+                    <button class="btn-fullscreen" onclick="openEmailFullscreen('\${email.id}')">Pantalla Completa</button>
                   </div>
                 </div>
 
@@ -1290,7 +1647,7 @@ client.Send(mailMessage);\`;
                   <div class="tab" onclick="switchTab('integrations', this)">Integrations</div>
                   <div class="tab" onclick="switchTab('html-source', this)">HTML Source</div>
                   <div class="tab" onclick="switchTab('text', this)">Text</div>
-                  <div class="tab" onclick="switchTab('eslint', this)">ESLint</div>
+                  <div class="tab" onclick="switchTab('eslint', this)">Lint</div>
                   <div class="tab" onclick="switchTab('spam', this)">Spam Analysis</div>
                   <div class="tab" onclick="switchTab('html-check', this)">HTML Check</div>
                   <div class="tab" onclick="switchTab('raw', this)">Raw</div>
@@ -1458,11 +1815,11 @@ client.Send(mailMessage);\`;
                 : '';
 
               return \`
-                <div style="background: \${bgColor}; border: 1px solid \${color}40; padding: 12px 16px; border-radius: 6px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 12px;">
-                  <div style="font-size: 16px; margin-top: 2px;">\${icon}</div>
+                <div style="background: \${bgColor}; border: 1px solid \${color}40; padding: 10px 12px; border-radius: 5px; margin-bottom: 6px; display: flex; align-items: flex-start; gap: 10px;">
+                  <div style="font-size: 14px; margin-top: 1px; flex-shrink: 0;">\${icon}</div>
                   <div style="flex: 1; min-width: 0;">
-                    <div style="font-size: 13px; font-weight: 600; color: \${color}; margin-bottom: 4px;">\${issue.title}</div>
-                    <div style="font-size: 12px; color: #a3a3a3; line-height: 1.4;">\${issue.consequence}</div>
+                    <div style="font-size: 12px; font-weight: 600; color: \${color}; margin-bottom: 2px;">\${issue.title}</div>
+                    <div style="font-size: 11px; color: #a3a3a3; line-height: 1.3;">\${issue.consequence}</div>
                     \${codeBlock}
                   </div>
                 </div>
@@ -1470,14 +1827,16 @@ client.Send(mailMessage);\`;
             }).join('');
 
             return \`
-              <div style="padding: 24px; max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
-                <div style="text-align: center; margin-bottom: 24px;">
-                  <h2 style="font-size: 20px; color: var(--vscode-foreground); margin-bottom: 8px;">ESLint for Emails</h2>
-                  <div style="display: flex; gap: 16px; justify-content: center; font-size: 13px; font-weight: 600;">
-                    <span style="color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 12px; border-radius: 12px;">\${linter.passedCount} checks pasaron</span>
-                    <span style="color: #f59e0b; background: rgba(245,158,11,0.1); padding: 4px 12px; border-radius: 12px;">\${linter.warningsCount} advertencias</span>
-                    <span style="color: #ef4444; background: rgba(239,68,68,0.1); padding: 4px 12px; border-radius: 12px;">\${linter.errorsCount} críticos</span>
-                <div style="border-top: 1px solid #333; margin-bottom: 24px;"></div>
+              <div style="padding: 16px; max-width: 650px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                  <h2 style="font-size: 18px; color: var(--vscode-foreground); margin-bottom: 8px;">ESLint for Emails</h2>
+                  <div style="display: flex; gap: 12px; justify-content: center; font-size: 12px; font-weight: 600; flex-wrap: wrap;">
+                    <span style="color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 10px; border-radius: 12px;">\${linter.passedCount} checks</span>
+                    <span style="color: #f59e0b; background: rgba(245,158,11,0.1); padding: 4px 10px; border-radius: 12px;">\${linter.warningsCount} advertencias</span>
+                    <span style="color: #ef4444; background: rgba(239,68,68,0.1); padding: 4px 10px; border-radius: 12px;">\${linter.errorsCount} críticos</span>
+                  </div>
+                </div>
+                <div style="border-top: 1px solid #333; margin-bottom: 16px;"></div>
                 <div style="display: flex; flex-direction: column;">
                   \${itemsHtml}
                 </div>
@@ -1720,6 +2079,13 @@ client.Send(mailMessage);\`;
 
           function openAttachment(filename) {
             vscode.postMessage({ command: 'openAttachment', emailId: selectedEmailId, filename: filename });
+          }
+
+          function openEmailFullscreen(emailId) {
+            vscode.postMessage({
+              command: 'openEmailFullscreen',
+              emailId: emailId
+            });
           }
 
           function switchTab(tab, element) {

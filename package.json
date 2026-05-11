@@ -1,17 +1,46 @@
 {
-  "name": "rzp-mail-sandbox",
-  "displayName": "MailCat - Local SMTP Sandbox",
-  "description": "A powerful local SMTP server and email testing sandbox for developers. Catch, preview, and validate emails without sending them.",
-  "version": "0.1.0",
-  "publisher": "RaulZ",
+  "name": "mailcat",
+  "displayName": "MailCat",
+  "description": "Local SMTP sandbox directly inside VS Code. Catch, preview, and validate emails without sending them.",
+  "version": "1.0.0",
+  "publisher": "raulzamora",
   "icon": "images/logo.png",
+  
   "engines": {
     "vscode": "^1.60.0"
   },
+
   "categories": [
     "Other",
-    "Debuggers"
+    "Debuggers",
+    "Testing"
   ],
+
+  "keywords": [
+    "smtp",
+    "email",
+    "mail",
+    "sandbox",
+    "testing",
+    "nodemailer",
+    "developer-tools",
+    "local-testing",
+    "debugging"
+  ],
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RaulZ/email-extension-vscode"
+  },
+
+  "homepage": "https://github.com/RaulZ/email-extension-vscode",
+
+  "bugs": {
+    "url": "https://github.com/RaulZ/email-extension-vscode/issues"
+  },
+
+  "license": "MIT",
+
   "activationEvents": [
     "onCommand:rzp-mail-sandbox.start"
   ],
@@ -20,40 +49,40 @@
     "commands": [
       {
         "command": "rzp-mail-sandbox.start",
-        "title": "RZP Mail: Start Sandbox",
-        "category": "RZP Mail"
+        "title": "MailCat: Start Sandbox",
+        "category": "MailCat"
       },
       {
         "command": "rzp-mail-sandbox.stop",
-        "title": "RZP Mail: Stop Sandbox",
-        "category": "RZP Mail"
+        "title": "MailCat: Stop Sandbox",
+        "category": "MailCat"
       },
       {
         "command": "rzp-mail-sandbox.openInbox",
-        "title": "RZP Mail: Open Inbox in Tab",
-        "category": "RZP Mail"
+        "title": "MailCat: Open Inbox in Tab",
+        "category": "MailCat"
       },
       {
         "command": "rzp-mail-sandbox.copyConfig",
-        "title": "RZP Mail: Copy SMTP Config",
-        "category": "RZP Mail"
+        "title": "MailCat: Copy SMTP Config",
+        "category": "MailCat"
       },
       {
         "command": "rzp-mail-sandbox.clearInbox",
-        "title": "RZP Mail: Clear Inbox",
-        "category": "RZP Mail"
+        "title": "MailCat: Clear Inbox",
+        "category": "MailCat"
       },
       {
         "command": "rzp-mail-sandbox.debug-storage",
-        "title": "RZP Mail: Debug Storage (Ver emails en memoria)",
-        "category": "RZP Mail"
+        "title": "MailCat: Debug Storage (Ver emails en memoria)",
+        "category": "MailCat"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
           "id": "rzp-mail-view",
-          "title": "RZP Mail",
+          "title": "MailCat",
           "icon": "media/mail-icon.svg"
         }
       ]
